@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 
 import './App.scss';
 
@@ -11,9 +11,22 @@ import Footer from './Components/Footer';
 import Form from './Components/Form';
 import Results from './Components/Results';
 
-class App extends React.Component {
 
-  constructor(props) {
+interface AppState {
+  data: {
+    count: number;
+    results: Array<{ name: string;  url: string }>;
+  } | null;
+  requestParams: {
+    method?: string;
+    url?: string;
+  };
+}
+
+
+class App extends Component<object, AppState> {
+
+  constructor(props: object) {
     super(props);
     this.state = {
       data: null,
@@ -21,7 +34,7 @@ class App extends React.Component {
     };
   }
 
-  callApi = (requestParams) => {
+  callApi = (requestParams: { method: string; url: string }) => {
     // mock output
     const data = {
       count: 2,
@@ -30,19 +43,19 @@ class App extends React.Component {
         {name: 'fake thing 2', url: 'http://fakethings.com/2'},
       ],
     };
-    this.setState({data, requestParams});
+    this.setState({ data, requestParams });
   }
 
   render() {
     return (
-      <React.Fragment>
+      <>
         <Header />
         <div>Request Method: {this.state.requestParams.method}</div>
         <div>URL: {this.state.requestParams.url}</div>
         <Form handleApiCall={this.callApi} />
         <Results data={this.state.data} />
         <Footer />
-      </React.Fragment>
+      </>
     );
   }
 }
