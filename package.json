@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.6.8",
+    "pretty-print-json": "^3.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sass": "^1.76.0",
@@ -19,6 +21,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^15.0.6",
+    "@types/axios": "^0.14.0",
     "@types/jest": "^29.5.12",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
