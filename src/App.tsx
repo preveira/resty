@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 
 import './App.scss';
 
@@ -12,52 +12,39 @@ import Form from './Components/Form';
 import Results from './Components/Results';
 
 
-interface AppState {
-  data: {
-    count: number;
-    results: Array<{ name: string;  url: string }>;
-  } | null;
-  requestParams: {
-    method?: string;
-    url?: string;
-  };
-}
 
+const App = () => {
+  const [requestParams,setRequestParams] = useState({ method: '', url: ''});
+  const [data, setData] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-class App extends Component<object, AppState> {
+  const callApi = (formData: { method: string; url: string }) => {
+    setIsLoading(true);
 
-  constructor(props: object) {
-    super(props);
-    this.state = {
-      data: null,
-      requestParams: {},
-    };
-  }
-
-  callApi = (requestParams: { method: string; url: string }) => {
-    // mock output
-    const data = {
-      count: 2,
+    const mockData = {
       results: [
-        {name: 'fake thing 1', url: 'http://fakethings.com/1'},
-        {name: 'fake thing 2', url: 'http://fakethings.com/2'},
+        { name: 'fake thing 1', url: 'http://fakethings.com/1' }, 
+        { name: 'fake thing 2', url: 'http://fakethings.com/2' },
       ],
     };
-    this.setState({ data, requestParams });
-  }
 
-  render() {
-    return (
-      <>
-        <Header />
-        <div>Request Method: {this.state.requestParams.method}</div>
-        <div>URL: {this.state.requestParams.url}</div>
-        <Form handleApiCall={this.callApi} />
-        <Results data={this.state.data} />
+    setTimeout(() => {
+      setData(mockData);
+      setRequestParams(formData);
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  return (
+    <>
+      <Header />
+        <div>Request Method: {requestParams.method}</div> 
+        <div>URL: {requestParams.url}</div> 
+        <Form handleApiCall={callApi} />
+        <Results data={data} isLoading={isLoading} />
         <Footer />
-      </>
-    );
-  }
-}
+    </>
+  );
+};
 
 export default App;

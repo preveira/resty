@@ -21,6 +21,7 @@ Describe how the project is structured.
 
 ## Documentation
 ![UML Whiteboard](Lab-26.png)
+![UseState Hook UML](Lab-27.png)
 
 ## Languages & tools
 Explain what tools are used.
