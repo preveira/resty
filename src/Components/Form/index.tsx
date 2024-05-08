@@ -60,6 +60,14 @@ const Form: React.FunctionComponent<FormProps> = ({ handleApiCall }) => {
         /> PUT
         <input
           type="radio" 
+          id="patch" 
+          name="method" 
+          value="PATCH" 
+          checked={method === 'PATCH'} 
+          onChange={() => setMethod('PATCH')} 
+        /> PATCH
+        <input
+          type="radio" 
           id="delete" 
           name="method" 
           value="DELETE" 

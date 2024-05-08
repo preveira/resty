@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import React from 'react';
-import { render, screen, fireEvent, waitFor} from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../App';
 
 describe('App Component Tests', () => {
@@ -20,5 +20,6 @@ describe('App Component Tests', () => {
       expect(screen.getByText(/fake thing 1/i)).toBeInTheDocument();
       expect(screen.getByText(/fake thing 2/i)).toBeInTheDocument();
     });
+    // screen.debug();
   });
 });
