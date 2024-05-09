@@ -5,7 +5,8 @@ import './Form.scss';
 interface FormProps {
   handleApiCall: (formData: {
     method: string;
-    url: string
+    url: string;
+    body?: string;
   }) => void;
 }
 
@@ -17,7 +18,11 @@ const Form: React.FunctionComponent<FormProps> = ({ handleApiCall }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    handleApiCall({ method, url });
+    handleApiCall({ 
+      method,
+      url,
+      body: method === 'POST' || method === 'PUT' ? requestBody : undefined
+    });
   };
 
     return (
