@@ -1,5 +1,6 @@
 import React from 'react';
 import { prettyPrintJson, FormatOptions } from 'pretty-print-json';
+import './Results.scss';
 
 interface ResultsProps {
   data?: { [key: string]: any } | null;
