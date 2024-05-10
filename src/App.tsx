@@ -1,48 +1,93 @@
-import React, { useState } from 'react';
+import React, { useReducer, useEffect } from 'react';
+import axios from 'axios'; // Importing axios for HTTP requests
+import './App.scss'; // Import styles
 
-import './App.scss';
-
-// Let's talk about using index.js and some other name in the component folder.
-// There's pros and cons for each way of doing this...
-// OFFICIALLY, we have chosen to use the Airbnb style guide naming convention. 
-// Why is this source of truth beneficial when spread across a global organization?
 import Header from './Components/Header';
 import Footer from './Components/Footer';
 import Form from './Components/Form';
 import Results from './Components/Results';
+import History from './Components/History';
 
 
+const initialState = {
+  isLoading: false,
+  data: null,
+  error: null,
+  history: [],
+};
+
+const reducer = (state: typeof initialState, action: any) => {
+  switch (action.type) {
+    case 'API_REQUEST':
+      return { ...state, isLoading: true, error: null };
+
+    case 'API_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        data: action.payload.data,
+        history: [...state.history, action.payload],
+      };
+
+    case 'API_FAILURE':
+      return { ...state, isLoading: false, error: action.payload.error };
+
+    case 'SHOW_HISTORY_RESULT':
+      return { ...state, data: action.payload.data };
+
+    default:
+      return state;
+  }
+};
 
 const App = () => {
-  const [requestParams,setRequestParams] = useState({ method: '', url: ''});
-  const [data, setData] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const callApi = (formData: { method: string; url: string }) => {
-    setIsLoading(true);
+  const handleApiCall = async (formData: { method: string; url: string }) => {
+    dispatch({ type: 'API_REQUEST' });
 
-    const mockData = {
-      results: [
-        { name: 'fake thing 1', url: 'http://fakethings.com/1' }, 
-        { name: 'fake thing 2', url: 'http://fakethings.com/2' },
-      ],
-    };
+    try {
+      const response = await axios({
+        method: formData.method,
+        url: formData.url,
+      });
 
-    setTimeout(() => {
-      setData(mockData);
-      setRequestParams(formData);
-      setIsLoading(false);
-    }, 1000);
+      dispatch({
+        type: 'API_SUCCESS',
+        payload: {
+          data: response.data,
+          method: formData.method,
+          url: formData.url,
+        },
+      });
+    } catch (error) {
+      dispatch({
+        type: 'API_FAILURE',
+        payload: { error: error.message },
+      });
+    }
+  };
+
+  const handleHistoryClick = (historyItem: any) => {
+    dispatch({
+      type: 'SHOW_HISTORY_RESULT',
+      payload: { data: historyItem.data },
+    });
   };
 
   return (
     <>
       <Header />
-        <div>Request Method: {requestParams.method}</div> 
-        <div>URL: {requestParams.url}</div> 
-        <Form handleApiCall={callApi} />
-        <Results data={data} isLoading={isLoading} />
-        <Footer />
+      <Form handleApiCall={handleApiCall} />
+      <History history={state.history} onClick={handleHistoryClick} />
+      {state.isLoading ? (
+        <div>Loading...</div>
+      ) : state.error ? (
+        <div>Error: {state.error}</div>
+      ) : (
+        <Results data={state.data} />
+      )}
+      <Footer />
     </>
   );
 };
