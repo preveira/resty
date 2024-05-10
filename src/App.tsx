@@ -1,63 +1,95 @@
-import React, { useState, useEffect } from 'react'; 
-import axios from 'axios'; 
-import './App.scss'; 
+import React, { useReducer, useEffect } from 'react';
+import axios from 'axios'; // Importing axios for HTTP requests
+import './App.scss'; // Import styles
 
 import Header from './Components/Header';
 import Footer from './Components/Footer';
 import Form from './Components/Form';
 import Results from './Components/Results';
+import History from './Components/History';
+
+
+const initialState = {
+  isLoading: false,
+  data: null,
+  error: null,
+  history: [],
+};
+
+const reducer = (state: typeof initialState, action: any) => {
+  switch (action.type) {
+    case 'API_REQUEST':
+      return { ...state, isLoading: true, error: null };
+
+    case 'API_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        data: action.payload.data,
+        history: [...state.history, action.payload],
+      };
+
+    case 'API_FAILURE':
+      return { ...state, isLoading: false, error: action.payload.error };
+
+    case 'SHOW_HISTORY_RESULT':
+      return { ...state, data: action.payload.data };
+
+    default:
+      return state;
+  }
+};
 
 const App = () => {
-  const [requestParams, setRequestParams] = useState({ method: 'GET', url: '', body: '' });
-  const [data, setData] = useState<any | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  useEffect(() => {
-    if (!requestParams.url) {
-      return;
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  const handleApiCall = async (formData: { method: string; url: string }) => {
+    dispatch({ type: 'API_REQUEST' });
+
+    try {
+      const response = await axios({
+        method: formData.method,
+        url: formData.url,
+      });
+
+      dispatch({
+        type: 'API_SUCCESS',
+        payload: {
+          data: response.data,
+          method: formData.method,
+          url: formData.url,
+        },
+      });
+    } catch (error) {
+      dispatch({
+        type: 'API_FAILURE',
+        payload: { error: error.message },
+      });
     }
+  };
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await axios({
-          method: requestParams.method,
-          url: requestParams.url,
-          data: requestParams.body,
-        });
-
-        setData(response.data); 
-      } catch (err: any) { 
-        setError(err.message); 
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [requestParams]);
-
-  const handleApiCall = (formData: { method: string; url: string; body?: string }) => {
-    setRequestParams(formData);
+  const handleHistoryClick = (historyItem: any) => {
+    dispatch({
+      type: 'SHOW_HISTORY_RESULT',
+      payload: { data: historyItem.data },
+    });
   };
 
   return (
     <>
       <Header />
       <Form handleApiCall={handleApiCall} />
-      {isLoading ? (
+      <History history={state.history} onClick={handleHistoryClick} />
+      {state.isLoading ? (
         <div>Loading...</div>
-      ) : error ? (
-        <div>Error: {error}</div>
+      ) : state.error ? (
+        <div>Error: {state.error}</div>
       ) : (
-        <Results data={data} />
+        <Results data={state.data} />
       )}
-      <Footer /> {/* Render the footer */}
+      <Footer />
     </>
   );
 };
 
-export default App; // Export the functional App component
+export default App;
